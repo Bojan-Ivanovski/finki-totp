@@ -1,6 +1,8 @@
 import time
 import hashlib
 import base64
+import qrcode
+import io
 
 class OTP:
     
@@ -40,7 +42,15 @@ class OTP:
         _nibble = int(bytes_object.hex()[-1], 16)
         return _nibble   
 
-
+    @staticmethod
+    def generate_qr_code(secret: str, email: str) -> str:
+        img = qrcode.make(f"otpauth://totp/FINKI-TOTP:{email}?secret={secret}&issuer=FINKI-TOTP", version=1)
+        buffer = io.BytesIO()
+        img.save(buffer, format="PNG")
+        png_bytes = buffer.getvalue()
+        png_base64 = base64.b64encode(png_bytes).decode("utf-8")
+        return png_base64
+    
 if __name__ == "__main__":
     secret = "J5HEKT2OIVHU4RKP"
     otp = OTP(secret)

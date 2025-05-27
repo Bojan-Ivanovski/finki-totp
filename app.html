@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Dropdown Example</title>
+    <title>Finki TOTP</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         body {
@@ -11,6 +11,7 @@
             background: #f4f4f4;
             color: #222;
             transition: background 0.2s, color 0.2s;
+            padding: 20px;
         }
         .user-menu {
             position: absolute;
@@ -62,11 +63,16 @@
         .user-menu.open .dropdown-content {
             display: block;
         }
+        .fa-trash:hover {
+            color: #217dbb;
+            transition: 0.2s;
+        }
         .dropdown-content button {width: 100%;}
         /* Main dropdowns */
         .container {
             max-width: 800px;
             margin: 100px auto 0 auto;
+            margin-bottom: 100px;
             background: #fff;
             padding: 32px 24px;
             border-radius: 12px;
@@ -304,49 +310,17 @@
     </div>
 
     <div class="container">
-        {% for secret in secrets %}
-        <div class="dropdown" id="dropdown{{ loop.index }}">
-            <div class="dropdown-header">
-                {{ secret.name }}
-                <span class="dropdown-arrow"><i class="fa fa-chevron-right"></i></span>
-            </div>
-            <div class="dropdown-content-main" >
-                <span>{{ secret.value }}</span>
-                <span class="totp-timer" id="timer{{ loop.index }}" style="margin-left: 18px; font-size: 15px; color: #888;">
-                    <i class="fa fa-clock"></i> <span class="timer-value">30</span>s
-                </span>
-            </div>
-        </div>
-        {% else %}
-        <div style="text-align:center; color:#888; padding:40px 0;">
-            <i class="fa fa-lock" style="font-size:32px; margin-bottom:12px;"></i><br>
-            No secrets added yet.
-        </div>
-        {% endfor %}
+        <div id="secretsList"></div>
+        
     </div>
     <script>
-        let lastSecond = null;
-        function updateAllTimers() {
-            const now = Math.floor(Date.now() / 1000);
-            const seconds = 30 - (now % 30);
-            document.querySelectorAll('.totp-timer .timer-value').forEach(el => {
-            el.textContent = seconds;
-            });
-            if (seconds === 30 && lastSecond !== 30) {
-            location.reload();
-            }
-            lastSecond = seconds;
-        }
-        setInterval(updateAllTimers, 1000);
-        updateAllTimers();
+        
     </script>
 
-    <!-- Floating Action Button for Add Secret -->
     <button class="fab-add-secret" id="fabAddSecret" title="Add new secret">
         <i class="fa fa-plus"></i>
     </button>
 
-    <!-- Modal for Add Secret Form -->
     <div class="add-secret-modal" id="addSecretModal">
         <form class="add-secret-form-container" id="addSecretForm">
             <button class="add-secret-close" id="closeAddSecret" title="Close">
@@ -364,8 +338,34 @@
             <button type="submit">Add Secret</button>
         </form>
     </div>
-
     <script>
+        let lastSecond = null;
+        function updateAllTimers() {
+            const now = Math.floor(Date.now() / 1000);
+            const seconds = 30 - (now % 30);
+            document.querySelectorAll('.totp-timer .timer-value').forEach(el => {
+                el.textContent = seconds;
+            });
+            if (seconds === 30 && lastSecond !== 30) {
+                fetch('/app/get_secret')
+                .then(response => response.json())
+                .then(secrets => {
+                    renderSecrets(secrets['secrets']);
+                });          
+            }
+            lastSecond = seconds;
+        }
+
+        opened = []
+        setInterval(updateAllTimers, 1000);
+        updateAllTimers();
+
+        fetch('/app/get_secret')
+            .then(response => response.json())
+            .then(secrets => {
+                renderSecrets(secrets['secrets']);
+            });
+
         const userMenu = document.getElementById('userMenu');
         userMenu.querySelector('.user-icon').onclick = function(e) {
             userMenu.classList.toggle('open');
@@ -374,12 +374,6 @@
             if (!userMenu.contains(e.target)) {
                 userMenu.classList.remove('open');
             }
-        });
-
-        document.querySelectorAll('.dropdown').forEach(dropdown => {
-            dropdown.querySelector('.dropdown-header').onclick = function() {
-                dropdown.classList.toggle('open');
-            };
         });
         
         keep = 1
@@ -395,7 +389,6 @@
             localStorage.setItem('dark-mode', keep);
         });
 
-        // Add Secret Modal logic
         const fabAddSecret = document.getElementById('fabAddSecret');
         const addSecretModal = document.getElementById('addSecretModal');
         const closeAddSecret = document.getElementById('closeAddSecret');
@@ -414,6 +407,7 @@
             }
         });
         addSecretForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
             const name = document.getElementById('secretName').value;
             const secret = document.getElementById('secretValue').value;
 
@@ -434,7 +428,89 @@
 
             addSecretModal.classList.remove('active');
             addSecretForm.reset();
+            fetch('/app/get_secret')
+            .then(response => response.json())
+            .then(secrets => {
+                renderSecrets(secrets['secrets']);
+            });
         });
+
+        function renderSecrets(secrets) {
+            const container = document.getElementById('secretsList');
+            container.innerHTML = '';
+            if (secrets.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center; color:#888; padding:40px 0;">
+                        <i class="fa fa-lock" style="font-size:32px; margin-bottom:12px;"></i><br>
+                        No secrets added yet.
+                    </div>
+                `
+                return;
+            }
+
+            secrets.forEach((secret, idx) => {
+                const html = `
+                <div class="dropdown" id="${secret.id}">
+                    <div class="dropdown-header">
+                        <i class="fa fa-trash"></i>
+                        ${secret.name}
+                        <span class="dropdown-arrow"><i class="fa fa-chevron-right"></i></span>
+                    </div>
+                    <div class="dropdown-content-main">
+                        <span>${secret.value}</span>
+                        <span class="totp-timer" id="timer${idx + 1}" style="margin-left: 18px; font-size: 15px; color: #888;">
+                            <i class="fa fa-clock"></i> <span class="timer-value">30</span>s
+                        </span>
+                    </div>
+                    <div class="dropdown-content-main" style="flex-direction: column; align-items: center; padding: 16px;">
+                        <img src="data:image/png;base64,${secret.qr}" alt="QR Code" style="width: 100%; height: auto;">
+                    </div>
+                </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+
+            opened.forEach(id => {
+                const dropdown = document.getElementById(id);
+                if (dropdown) {
+                    dropdown.classList.add('open');
+                }
+            });
+
+            container.querySelectorAll('.dropdown').forEach(dropdown => {
+                dropdown.querySelector('.dropdown-header').onclick = function() {
+                    dropdown.classList.toggle('open');
+                    if (opened.includes(dropdown.id)) {
+                        opened.splice(opened.indexOf(dropdown.id), 1);
+                    } else {
+                        opened.push(dropdown.id);
+                    }
+                };
+                dropdown.querySelector('.fa-trash').onclick = function(event) {
+                    event.stopPropagation(); 
+                    const secretId = dropdown.id;
+                    console.log(JSON.stringify({ "secretId": secretId }))
+                    fetch('/remove_secret', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ "secretId": secretId })
+                    }).then(response => response.json())
+                      .then(result => {
+                        if (result.success) {
+                            fetch('/app/get_secret')
+                            .then(response => response.json())
+                            .then(secrets => {
+                                renderSecrets(secrets['secrets']);
+                            });
+                        } else {
+                            alert(result.message);
+                        }
+                      });
+                }
+            });
+        }
     </script>
 </body>
 </html>

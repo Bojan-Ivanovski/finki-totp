@@ -8,6 +8,7 @@ from fastapi.responses import RedirectResponse
 import json
 from fastapi.templating import Jinja2Templates
 from otp import OTP 
+import uuid
 
 load_dotenv()
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
@@ -32,25 +33,30 @@ oauth.register(
 @app.get("/login")
 async def login(request: Request):
     redirect_uri = request.url_for("auth")  
-    return await oauth.google.authorize_redirect(request, redirect_uri)  
+    return await oauth.google.authorize_redirect(request, redirect_uri)
 
 @app.get("/auth")
 async def auth(request: Request):
     token = await oauth.google.authorize_access_token(request)
     userinfo = token.get("userinfo")
-
     request.session["user"] = {
         "sub": userinfo["sub"],
         "email": userinfo.get("email"),
         "name": userinfo.get("name"),
     }
-    print(token)
-
     return RedirectResponse(url="/app")
 
 templates = Jinja2Templates(directory=".")
 @app.get("/app")
 def main_app(request: Request):
+    user = request.session.get("user")
+    if not user:
+        return RedirectResponse(url="/")
+    with open("app.html", "r") as file:
+        return Response(content=file.read(), media_type="text/html")
+
+@app.get("/app/get_secret")
+def get_secret(request: Request):
     user = request.session.get("user")
     if not user:
         return RedirectResponse(url="/")
@@ -62,9 +68,12 @@ def main_app(request: Request):
             user_id = user.get("sub")
             secrets = data.get(user_id, {}).get("secrets", [])
             for secret in secrets:
-                secret["value"] = OTP(secret["secret"]).generate_otp()[0]
-    return templates.TemplateResponse("app.html", {"request": request, "user": user, "secrets": secrets})
-
+                try:
+                    secret["value"] = OTP(secret["secret"]).generate_otp()[0]
+                    secret["qr"] = OTP.generate_qr_code(secret["secret"], user.get("email"))
+                except Exception:
+                    continue
+    return {"secrets": secrets}
 
 @app.get("/")
 def root():
@@ -82,8 +91,7 @@ async def add_secret_for_user(request: Request):
     user = request.session.get("user").get("sub")
     secret_name = body.get("secretName")
     secret_value = body.get("secretValue")
-    print(user)
-    print(request.session)
+    secret_id = str(uuid.uuid4())
     filename = "user_secrets.json"
     if not os.path.exists(filename):
         with open(filename, "w") as f:
@@ -95,7 +103,35 @@ async def add_secret_for_user(request: Request):
     if user not in data:
         data[user] = {"secrets": []}
 
-    data[user]["secrets"].append({"name": secret_name, "secret": secret_value})
+    data[user]["secrets"].append({"id": secret_id,"name": secret_name, "secret": secret_value})
 
     with open(filename, "w") as f:
         json.dump(data, f, indent=2)
+
+@app.post("/remove_secret")
+async def remove_secret_for_user(request: Request):
+    body = await request.json()
+    user = request.session.get("user").get("sub")
+    secret_id = body.get("secretId")
+    filename = "user_secrets.json"
+    if not os.path.exists(filename):
+        return {"success": False, "message": "No secrets file found."}
+
+    with open(filename, "r") as f:
+        data = json.load(f)
+
+    if user not in data or "secrets" not in data[user]:
+        return {"success": False, "message": "No secrets found for user."}
+
+    for secret in data[user]["secrets"]:
+        if secret["id"] == secret_id:
+            data[user]["secrets"].remove(secret)
+            with open(filename, "w") as f:
+                json.dump(data, f, indent=2)
+            return {"success": True, "message": "Secret removed."}
+
+    return {"success": False, "message": "Secret not found."}
+
+
+
+
