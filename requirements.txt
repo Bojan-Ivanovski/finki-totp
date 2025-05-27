@@ -5,3 +5,4 @@ authlib
 jinja2
 itsdangerous
 httpx
+qrcode
