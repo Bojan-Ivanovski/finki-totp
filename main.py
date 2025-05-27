@@ -71,8 +71,9 @@ def get_secret(request: Request):
                 try:
                     secret["value"] = OTP(secret["secret"]).generate_otp()[0]
                     secret["qr"] = OTP.generate_qr_code(secret["secret"], user.get("email"))
-                except Exception:
-                    continue
+                except Exception as e:
+                    print(f"Error : {e}")
+    print(secrets)
     return {"secrets": secrets}
 
 @app.get("/")
