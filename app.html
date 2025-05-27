@@ -231,8 +231,8 @@
             margin-bottom: 6px;
             font-weight: bold;
         }
-        .add-secret-form-container input[type="text"],
-        .add-secret-form-container input[type="password"] {
+        input[type="text"],
+        input[type="password"] {
             width: 100%;
             padding: 8px 10px;
             margin-bottom: 16px;
@@ -240,7 +240,7 @@
             border-radius: 6px;
             font-size: 16px;
         }
-        .add-secret-form-container button[type="submit"] {
+        button[type="submit"] {
             background: #3498db;
             color: #fff;
             border: none;
@@ -250,7 +250,7 @@
             cursor: pointer;
             transition: background 0.2s;
         }
-        .add-secret-form-container button[type="submit"]:hover {
+        button[type="submit"]:hover {
             background: #217dbb;
         }
         .add-secret-close {
@@ -278,16 +278,16 @@
             color: #e0e0e0;
             box-shadow: 0 2px 16px rgba(0,0,0,0.4);
         }
-        body.dark-mode .add-secret-form-container input[type="text"],
-        body.dark-mode .add-secret-form-container input[type="password"] {
+        body.dark-mode input[type="text"],
+        body.dark-mode input[type="password"] {
             background: #181a1b;
             color: #e0e0e0;
             border: 1px solid #444;
         }
-        body.dark-mode .add-secret-form-container button[type="submit"] {
+        body.dark-mode button[type="submit"] {
             background: #217dbb;
         }
-        body.dark-mode .add-secret-form-container button[type="submit"]:hover {
+        body.dark-mode button[type="submit"]:hover {
             background: #3498db;
         }
         body.dark-mode .add-secret-close {
@@ -310,8 +310,27 @@
     </div>
 
     <div class="container">
+        <div id="verifyTOTP" style="display: flex; flex-direction: column; align-items: center;">
+            <h2 style="margin-bottom: 18px;">Verify TOTP</h2>
+            <form id="verifyTOTPForm" style="display: flex; flex-direction: column; align-items: center; gap: 14px; max-width: 340px; width: 100%;">
+                <input type="text" id="verifySecret" name="secret" required placeholder="Enter secret" style="margin-bottom: 8px;">
+                <div id="otpInputs" style="display: flex; gap: 8px; margin-bottom: 8px;">
+                    <input type="text" inputmode="numeric" maxlength="1" class="otp-box" style="width: 38px; height: 44px; text-align: center; font-size: 22px; border-radius: 6px; border: 1px solid #ccc;">
+                    <input type="text" inputmode="numeric" maxlength="1" class="otp-box" style="width: 38px; height: 44px; text-align: center; font-size: 22px; border-radius: 6px; border: 1px solid #ccc;">
+                    <input type="text" inputmode="numeric" maxlength="1" class="otp-box" style="width: 38px; height: 44px; text-align: center; font-size: 22px; border-radius: 6px; border: 1px solid #ccc;">
+                    <input type="text" inputmode="numeric" maxlength="1" class="otp-box" style="width: 38px; height: 44px; text-align: center; font-size: 22px; border-radius: 6px; border: 1px solid #ccc;">
+                    <input type="text" inputmode="numeric" maxlength="1" class="otp-box" style="width: 38px; height: 44px; text-align: center; font-size: 22px; border-radius: 6px; border: 1px solid #ccc;">
+                    <input type="text" inputmode="numeric" maxlength="1" class="otp-box" style="width: 38px; height: 44px; text-align: center; font-size: 22px; border-radius: 6px; border: 1px solid #ccc;">
+                </div>
+                <input type="hidden" id="verifyOTP" name="otp" required>
+                <button type="submit" style="margin-top: 8px;">Verify</button>
+                <div id="verifyResult" style="margin-top: 10px; min-height: 24px; text-align: center;"></div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="container">
         <div id="secretsList"></div>
-        
     </div>
     <script>
         
@@ -339,6 +358,70 @@
         </form>
     </div>
     <script>
+        const otpBoxes = document.querySelectorAll('.otp-box');
+        const hiddenOtp = document.getElementById('verifyOTP');
+        otpBoxes.forEach((box, idx) => {
+            box.addEventListener('input', function(e) {
+                if (this.value.length > 1) this.value = this.value.slice(0, 1);
+                if (this.value && idx < otpBoxes.length - 1) {
+                    otpBoxes[idx + 1].focus();
+                }
+                updateHiddenOtp();
+            });
+            box.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace' && !this.value && idx > 0) {
+                    otpBoxes[idx - 1].focus();
+                }
+            });
+            box.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const paste = (e.clipboardData || window.clipboardData).getData('text');
+                const digits = paste.replace(/\D/g, '').split('');
+                let i = idx;
+                digits.forEach(d => {
+                    if (i < otpBoxes.length) {
+                        otpBoxes[i].value = d;
+                        i++;
+                    }
+                });
+                if (i < otpBoxes.length) {
+                    otpBoxes[i].focus();
+                } else {
+                    otpBoxes[otpBoxes.length - 1].focus();
+                }
+                updateHiddenOtp();
+            });
+        });
+        function updateHiddenOtp() {
+            hiddenOtp.value = Array.from(otpBoxes).map(b => b.value).join('');
+        }
+
+        document.getElementById('verifyTOTPForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const secret = document.getElementById('verifySecret').value;
+            const otp = document.getElementById('verifyOTP').value;
+            const resultDiv = document.getElementById('verifyResult');
+            console.log(JSON.stringify({ "secret": secret, "code":otp }))
+            try {
+                const res = await fetch('/verify_otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ "secret": secret, "code":otp })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    resultDiv.style.color = 'green';
+                    resultDiv.textContent = 'OTP is valid!';
+                } else {
+                    resultDiv.style.color = 'red';
+                    resultDiv.textContent = data.message || 'OTP is invalid.';
+                }
+            } catch (err) {
+                resultDiv.style.color = 'red';
+                resultDiv.textContent = 'Error verifying OTP. (Secret might be invalid)';
+            }
+        });
+
         let lastSecond = null;
         function updateAllTimers() {
             const now = Math.floor(Date.now() / 1000);

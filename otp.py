@@ -34,9 +34,11 @@ class OTP:
     def generate_otp(self) -> tuple[int, int]:
         current_time = int(time.time())
         future_time = int(time.time()+30)
+        past_time = int(time.time()-30)
         current_otp = self.generate_otp_from_timestamp(current_time)
         future_otp = self.generate_otp_from_timestamp(future_time)
-        return current_otp, future_otp
+        past_otp = self.generate_otp_from_timestamp(past_time)
+        return past_otp, current_otp, future_otp
 
     def get_offset(self, bytes_object: bytes) -> int:
         _nibble = int(bytes_object.hex()[-1], 16)

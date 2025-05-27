@@ -58,8 +58,6 @@ def main_app(request: Request):
 @app.get("/app/get_secret")
 def get_secret(request: Request):
     user = request.session.get("user")
-    if not user:
-        return RedirectResponse(url="/")
     secrets = []
     filename = "user_secrets.json"
     if os.path.exists(filename):
@@ -69,11 +67,10 @@ def get_secret(request: Request):
             secrets = data.get(user_id, {}).get("secrets", [])
             for secret in secrets:
                 try:
-                    secret["value"] = OTP(secret["secret"]).generate_otp()[0]
+                    secret["value"] = OTP(secret["secret"]).generate_otp()[1]
                     secret["qr"] = OTP.generate_qr_code(secret["secret"], user.get("email"))
                 except Exception as e:
                     print(f"Error : {e}")
-    print(secrets)
     return {"secrets": secrets}
 
 @app.get("/")
@@ -86,10 +83,29 @@ async def logout(request: Request):
     request.session.clear()  
     return RedirectResponse(url="/")  
 
+@app.post("/verify_otp")
+async def verify_otp(request: Request):
+    body = await request.json()
+    user = request.session.get("user")
+    if not user:
+        return RedirectResponse(url="/")
+    secret = body.get("secret")
+    otp_code = body.get("code")
+    try:
+        otp = OTP(secret).generate_otp()
+        if otp_code in otp:
+            return {"success": True, "message": "The OTP Code for the provided secret is valid."}
+        return {"success": False, "message": "The OTP Code for the provided secret is invalid."}
+    except Exception as e:
+        print(f"Error verifying OTP: {e}")
+        return Response({"success": False, "message": str(e)}, status_code=404)
+
 @app.post("/add_secret")
 async def add_secret_for_user(request: Request):
     body = await request.json()
     user = request.session.get("user").get("sub")
+    if not user:
+        return RedirectResponse(url="/")
     secret_name = body.get("secretName")
     secret_value = body.get("secretValue")
     secret_id = str(uuid.uuid4())
