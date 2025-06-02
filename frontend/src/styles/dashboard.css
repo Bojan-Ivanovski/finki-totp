@@ -1,0 +1,157 @@
+.dashboard {
+  max-width: 500px;
+  min-width: 500px;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 0px 10px 5px rgba(0,0,0,0.1);
+  box-sizing: border-box;
+}
+
+.fab{
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 100%;
+  width: 50px;
+  height: 50px;
+  font-size: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+}
+
+.fab:hover {
+  opacity: 0.5;
+  transition: 0.5s;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+
+.logout-button{
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background-color: transparent;
+  border: none;
+  border-radius: 100%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  box-shadow: 0 0px 10px 5px rgba(0,0,0,0.1);
+}
+
+.logout-button:hover {
+  background-color: #c0b2b2;
+  transition: 0.5s;
+}
+
+.otp-box{
+  width: 44px; 
+  height: 44px; 
+  text-align: center; 
+  font-size: 22px; 
+  border-radius: 6px; 
+  border: none;
+  box-shadow: 0 0px 2px 2px rgba(0,0,0,0.1);
+}
+
+#otpInputs{
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+#verifyTOTPForm{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+#verifySecret{
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  box-shadow: 0 0px 5px 2px rgba(0,0,0,0.1);
+}
+
+.verify-button, .modal button{
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0px 5px 2px rgba(0,0,0,0.1);
+}
+
+.secret-list{
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dropdown-header{
+  width: 100%;
+  box-shadow: 0 0px 5px 2px rgba(0,0,0,0.1);
+  padding: 10px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.trash-icon:hover {
+  opacity: 0.5;
+  transition: 0.2s;
+}
+
+.dropdown-header:hover {
+  background-color: #f0f0f0;
+  transition: 0.2s;
+}
+
+.dropdown-content-main{
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  justify-content: space-between;
+  box-shadow: 0 0px 5px 2px rgba(0,0,0,0.1);
+}
+
+.modal input{
+  width: 250px;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  box-shadow: 0 0px 5px 2px rgba(0,0,0,0.1);
+}
+
+.modal-content{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0px 10px 5px rgba(0,0,0,0.1);
+}

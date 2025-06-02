@@ -1,0 +1,12 @@
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    google_id VARCHAR(255) UNIQUE NOT NULL
+);
+
+CREATE TABLE secrets (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    google_id VARCHAR(255) NOT NULL,
+    otp_secret VARCHAR(255) NOT NULL
+);

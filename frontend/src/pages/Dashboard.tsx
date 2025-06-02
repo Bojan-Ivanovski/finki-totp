@@ -1,0 +1,53 @@
+import { useEffect, useState, useCallback } from "react";
+import { getSecrets, logout } from "../api";
+import { useNavigate } from "react-router-dom";
+import SecretList from "../components/SecretList";
+import AddSecretModal from "../components/AddSecretModal";
+import DarkModeToggle from "../components/DarkModeToggle";
+import TOTPCode from "../components/TOTPCode";
+
+export default function Dashboard() {
+  const [secrets, setSecrets] = useState<any[]>([]);
+  const [showAdd, setShowAdd] = useState(false);
+  const navigate = useNavigate();
+
+  // Function to fetch secrets and update state
+  const fetchSecrets = useCallback(() => {
+    getSecrets()
+      .then((data) => setSecrets(data.secrets || []))
+      .catch(() => {
+        navigate("/", { replace: true });
+      });
+  }, [navigate]);
+
+  useEffect(() => {
+    fetchSecrets();
+  }, []);
+
+  return (
+    <div className="main-dashboard">
+      <DarkModeToggle />
+      <div className="dashboard" style={{ marginBottom: "50px" }}>
+        <form id="verifyTOTPForm">
+          <h2>Verify TOTP</h2>
+          <input type="text" id="verifySecret" name="secret" required placeholder="Enter secret" />
+          <TOTPCode />
+          <input type="hidden" id="verifyOTP" name="otp" required />
+          <button type="submit" className="verify-button">Verify</button>
+          <div id="verifyResult"></div>
+        </form>
+      </div>
+      <div className="dashboard">
+        <button className="logout-button" onClick={logout}>
+          <span className="material-symbols-outlined">
+            logout
+          </span>
+        </button>
+        <h2 style={{ marginBottom: 20 }}>Your TOTP Secrets</h2>
+        <SecretList secrets={secrets} refreshSecrets={fetchSecrets} />
+      </div>
+      <button className="fab" onClick={() => setShowAdd(true)}>+</button>
+      <AddSecretModal open={showAdd} onClose={() => setShowAdd(false)} setSecrets={setSecrets} refreshSecrets={fetchSecrets}/>
+    </div>
+  );
+}

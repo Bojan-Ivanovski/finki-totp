@@ -9,6 +9,7 @@ import json
 from fastapi.templating import Jinja2Templates
 from otp import OTP 
 import uuid
+from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
@@ -18,9 +19,17 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
     raise RuntimeError("Missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET")  
 
+origins = os.getenv("ALLOWED_ORIGINS", "").split(",")
+
 app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)  
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # or ["*"] to allow all (not recommended for prod)
+    allow_credentials=True,
+    allow_methods=["*"],     # GET, POST, PUT, etc.
+    allow_headers=["*"],     # Accept all headers
+)
 oauth = OAuth()
 oauth.register(
     name="google",
@@ -31,8 +40,11 @@ oauth.register(
 )  
 
 @app.get("/login")
-async def login(request: Request):
-    redirect_uri = request.url_for("auth")  
+async def login(request: Request, redirect: str):
+    if request.session.get("user"):
+        return RedirectResponse(url=redirect)
+    request.session['redirect'] = redirect
+    redirect_uri = request.url_for(f"auth")
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 @app.get("/auth")
@@ -44,7 +56,7 @@ async def auth(request: Request):
         "email": userinfo.get("email"),
         "name": userinfo.get("name"),
     }
-    return RedirectResponse(url="/app")
+    return RedirectResponse(url=request.session['redirect'])
 
 templates = Jinja2Templates(directory=".")
 @app.get("/app")
@@ -79,9 +91,9 @@ def root():
         return Response(content=file.read(), media_type="text/html")
     
 @app.get("/logout")
-async def logout(request: Request):
-    request.session.clear()  
-    return RedirectResponse(url="/")  
+async def logout(request: Request, redirect: str):
+    request.session.clear()
+    return RedirectResponse(url=redirect)
 
 @app.post("/verify_otp")
 async def verify_otp(request: Request):
