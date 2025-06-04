@@ -1,0 +1,78 @@
+name: Build, Lint, and Push Docker Images
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Lint backend Dockerfile
+        uses: hadolint/hadolint-action@v3
+        with:
+          dockerfile: backend/Dockerfile
+
+      - name: Lint frontend Dockerfile
+        uses: hadolint/hadolint-action@v3
+        with:
+          dockerfile: frontend/Dockerfile
+
+      - name: Lint frontend code (ESLint)
+        run: |
+          cd frontend
+          npm ci
+          npm run lint
+
+      - name: Lint backend Python code (ruff)
+        uses: chartboost/ruff-action@v1
+        with:
+          src: backend
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: lint
+    env:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKERHUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      FRONTEND_IMAGE: ${{ secrets.DOCKER_USERNAME }}/finki-totp-frontend
+      BACKEND_IMAGE: ${{ secrets.DOCKER_USERNAME }}/finki-totp-backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_PASSWORD }}
+
+      - name: Build frontend Docker image
+        run: |
+          docker build -t $FRONTEND_IMAGE:latest ./frontend
+
+      - name: Build backend Docker image
+        run: |
+          docker build -t $BACKEND_IMAGE:latest ./backend
+
+      - name: Push frontend Docker image
+        run: |
+          docker push $FRONTEND_IMAGE:latest
+
+      - name: Push backend Docker image
+        run: |
+          docker push $BACKEND_IMAGE:latest
+
+      - name: Docker image cleanup
+        run: |
+          docker rmi $FRONTEND_IMAGE:latest || true
+          docker rmi $BACKEND_IMAGE:latest || true
