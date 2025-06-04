@@ -1,7 +1,12 @@
 import { useRef } from "react";
 
-export default function TOTPCode() {
+export default function TOTPCode({ setCode }: { setCode: (code: string) => void }) {
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
+
+  const updateCode = () => {
+    const code = inputsRef.current.map(input => input?.value || "").join("");
+    setCode(code);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
     const value = e.target.value.replace(/[^0-9]/g, "");
@@ -10,6 +15,7 @@ export default function TOTPCode() {
     if (value.length === 1 && idx < 5) {
       inputsRef.current[idx + 1]?.focus();
     }
+    updateCode();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, idx: number) => {
@@ -31,6 +37,7 @@ export default function TOTPCode() {
     if (lastIdx >= 0) {
       inputsRef.current[lastIdx]?.focus();
     }
+    updateCode();
   };
 
   return (

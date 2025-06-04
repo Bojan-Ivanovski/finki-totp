@@ -26,17 +26,13 @@ export default function AddSecretModal({
           const name = nameRef.current!.value;
           const secret = secretRef.current!.value;
           const res = await addSecret(name, secret);
-          setSecrets((prev: any[]) => [
-            ...prev,
-            { id: Math.random().toString(), name, secret },
-          ]);
-          await refreshSecrets(); // <-- call refreshSecrets after adding
+          await refreshSecrets(); 
           onClose();
         }}
       >
         <h2>Add Secret</h2>
         <input ref={nameRef} placeholder="Name" required />
-        <input ref={secretRef} placeholder="Secret (Base32)" required />
+        <input ref={secretRef} minLength={16} maxLength={16} placeholder="Secret (Base32)" required />
         <div style={{display: "flex", justifyContent: "space-between", width: "100%"}}>
           <button type="submit">Add</button>
           <button type="button" onClick={onClose} style={{ backgroundColor: "#f44336", color: "white" }}>

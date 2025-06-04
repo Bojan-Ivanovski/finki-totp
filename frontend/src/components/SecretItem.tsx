@@ -21,7 +21,7 @@ export default function SecretItem({
         style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
       >
         <i className="material-symbols-outlined trash-icon" onClick={(e) => { e.stopPropagation(); onDelete(); }}>delete_sweep</i>
-        {secret.name}
+        {secret.title}
         <span className="material-symbols-outlined">
           {expanded ? "keyboard_double_arrow_down" : "keyboard_double_arrow_right"}
         </span>

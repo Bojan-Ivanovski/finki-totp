@@ -1,5 +1,5 @@
-import { useEffect, useState, useCallback } from "react";
-import { getSecrets, logout } from "../api";
+import { useEffect, useState, useCallback, useRef, use } from "react";
+import { getSecrets, logout, verifyOTP } from "../api";
 import { useNavigate } from "react-router-dom";
 import SecretList from "../components/SecretList";
 import AddSecretModal from "../components/AddSecretModal";
@@ -7,6 +7,9 @@ import DarkModeToggle from "../components/DarkModeToggle";
 import TOTPCode from "../components/TOTPCode";
 
 export default function Dashboard() {
+  const secretRef = useRef<HTMLInputElement>(null);
+  const [code, setCode] = useState("");
+  const [result, setResult] = useState<string | null>(null);
   const [secrets, setSecrets] = useState<any[]>([]);
   const [showAdd, setShowAdd] = useState(false);
   const navigate = useNavigate();
@@ -28,13 +31,16 @@ export default function Dashboard() {
     <div className="main-dashboard">
       <DarkModeToggle />
       <div className="dashboard" style={{ marginBottom: "50px" }}>
-        <form id="verifyTOTPForm">
+        <form id="verifyTOTPForm" onSubmit={async (e) => {
+              e.preventDefault();
+              const res = await verifyOTP(secretRef.current!.value, code);
+              setResult(res.success ? "✅ Valid" : "❌ Invalid");
+        }}>
           <h2>Verify TOTP</h2>
-          <input type="text" id="verifySecret" name="secret" required placeholder="Enter secret" />
-          <TOTPCode />
-          <input type="hidden" id="verifyOTP" name="otp" required />
+          <input maxLength={16} minLength={16} type="text" id="verifySecret" name="secret" required placeholder="Enter secret" ref={secretRef} aria-required/>
+          <TOTPCode setCode={setCode} />
           <button type="submit" className="verify-button">Verify</button>
-          <div id="verifyResult"></div>
+          <div id="verifyResult">{result}</div>
         </form>
       </div>
       <div className="dashboard">

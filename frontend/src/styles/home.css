@@ -31,7 +31,7 @@
     box-shadow: 0 0px 5px 2px rgba(0,0,0,0.1);
 }
 
-.google-btn:hover{
+.google-btn:hover, .hero-link:hover{
     background-color: #ffffff3d;
 }
 

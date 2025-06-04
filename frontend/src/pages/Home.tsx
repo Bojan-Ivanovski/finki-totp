@@ -26,7 +26,7 @@ export default function Home() {
         <div className="hero-right">
           <div className="hero-links">
             <a
-              href="https://github.com/yourusername/finki-totp"
+              href="https://github.com/Bojan-Ivanovski/finki-totp"
               target="_blank"
               rel="noopener noreferrer"
               className="hero-link"
@@ -35,7 +35,7 @@ export default function Home() {
               Repository
             </a>
             <a
-              href="https://github.com/yourusername/finki-totp#readme"
+              href="https://github.com/Bojan-Ivanovski/finki-totp#readme"
               target="_blank"
               rel="noopener noreferrer"
               className="hero-link"
