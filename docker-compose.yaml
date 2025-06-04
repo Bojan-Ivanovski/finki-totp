@@ -1,0 +1,50 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${OMAS_DB_USERNAME}
+      POSTGRES_PASSWORD: ${OMAS_DB_PASSWORD}
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${OMAS_DB_USERNAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend   
+    image: finki_totp_backend
+    environment:
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      SECRET_KEY: ${SECRET_KEY}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+      OMAS_DB_USERNAME: ${OMAS_DB_USERNAME}
+      OMAS_DB_PASSWORD: ${OMAS_DB_PASSWORD}
+      OMAS_DB_HOST: postgres
+      OMAS_DB_PORT: 5432
+      OMAS_DB: ${OMAS_DB}
+    ports:
+      - "7777:7777"
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+
+  frontend:
+    build: ./frontend
+    image: finki_totp_frontend
+    ports:
+      - "5555:5555"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+
+networks:
+  app-network:
+    driver: bridge

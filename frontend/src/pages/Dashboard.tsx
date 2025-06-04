@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef, use } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { getSecrets, logout, verifyOTP } from "../api";
 import { useNavigate } from "react-router-dom";
 import SecretList from "../components/SecretList";
@@ -53,7 +53,7 @@ export default function Dashboard() {
         <SecretList secrets={secrets} refreshSecrets={fetchSecrets} />
       </div>
       <button className="fab" onClick={() => setShowAdd(true)}>+</button>
-      <AddSecretModal open={showAdd} onClose={() => setShowAdd(false)} setSecrets={setSecrets} refreshSecrets={fetchSecrets}/>
+      <AddSecretModal open={showAdd} onClose={() => setShowAdd(false)} refreshSecrets={fetchSecrets}/>
     </div>
   );
 }

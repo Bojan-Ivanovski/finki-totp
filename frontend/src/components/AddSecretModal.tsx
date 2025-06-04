@@ -4,12 +4,10 @@ import { addSecret } from "../api";
 export default function AddSecretModal({
   open,
   onClose,
-  setSecrets,
   refreshSecrets, // <-- add this prop
 }: {
   open: boolean;
   onClose: () => void;
-  setSecrets: any;
   refreshSecrets: () => void; // <-- add this prop type
 }) {
   const nameRef = useRef<HTMLInputElement>(null);
@@ -25,7 +23,7 @@ export default function AddSecretModal({
           e.preventDefault();
           const name = nameRef.current!.value;
           const secret = secretRef.current!.value;
-          const res = await addSecret(name, secret);
+          await addSecret(name, secret);
           await refreshSecrets(); 
           onClose();
         }}

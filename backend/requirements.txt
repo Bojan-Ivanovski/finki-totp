@@ -1,4 +1,5 @@
 fastapi
+fastapi[standard]
 uvicorn
 python-dotenv
 authlib
@@ -7,3 +8,4 @@ itsdangerous
 httpx
 qrcode
 Pillow
+psycopg2

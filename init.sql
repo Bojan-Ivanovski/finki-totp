@@ -1,3 +1,7 @@
+CREATE DATABASE finki_totp;
+
+\connect finki_totp;
+
 CREATE TABLE users (
     google_id VARCHAR(255) PRIMARY KEY UNIQUE NOT NULL,
     email VARCHAR(255) NOT NULL
