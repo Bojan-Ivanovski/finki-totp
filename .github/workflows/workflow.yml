@@ -13,26 +13,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Lint backend Dockerfile
-        uses: hadolint/hadolint-action@v3
-        with:
-          dockerfile: backend/Dockerfile
-
-      - name: Lint frontend Dockerfile
-        uses: hadolint/hadolint-action@v3
-        with:
-          dockerfile: frontend/Dockerfile
-
-      - name: Lint frontend code (ESLint)
-        run: |
-          cd frontend
-          npm ci
-          npm run lint
-
-      - name: Lint backend Python code (ruff)
-        uses: chartboost/ruff-action@v1
-        with:
-          src: backend
+      - name: Lint code base
+        uses: github/super-linter@v6
+        env:
+          VALIDATE_ALL_CODEBASE: true
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
   docker:
     runs-on: ubuntu-latest
