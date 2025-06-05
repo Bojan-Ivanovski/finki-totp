@@ -10,11 +10,10 @@ export default function Dashboard() {
   const secretRef = useRef<HTMLInputElement>(null);
   const [code, setCode] = useState("");
   const [result, setResult] = useState<string | null>(null);
-  const [secrets, setSecrets] = useState<any[]>([]);
+  const [secrets, setSecrets] = useState<any[]>([]); // eslint-disable-line @typescript-eslint/no-explicit-any
   const [showAdd, setShowAdd] = useState(false);
   const navigate = useNavigate();
 
-  // Function to fetch secrets and update state
   const fetchSecrets = useCallback(() => {
     getSecrets()
       .then((data) => setSecrets(data.secrets || []))
@@ -25,19 +24,19 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchSecrets();
-  }, []);
+  });
 
   return (
     <div className="main-dashboard">
       <DarkModeToggle />
       <div className="dashboard" style={{ marginBottom: "50px" }}>
-        <form id="verifyTOTPForm" onSubmit={async (e) => {
+        <form id="verify-totp-form" onSubmit={async (e) => {
               e.preventDefault();
               const res = await verifyOTP(secretRef.current!.value, code);
               setResult(res.success ? "✅ Valid" : "❌ Invalid");
         }}>
           <h2>Verify TOTP</h2>
-          <input maxLength={16} minLength={16} type="text" id="verifySecret" name="secret" required placeholder="Enter secret" ref={secretRef} aria-required/>
+          <input maxLength={16} minLength={16} type="text" id="verify-secret" name="secret" required placeholder="Enter secret" ref={secretRef} aria-required/>
           <TOTPCode setCode={setCode} />
           <button type="submit" className="verify-button">Verify</button>
           <div id="verifyResult">{result}</div>

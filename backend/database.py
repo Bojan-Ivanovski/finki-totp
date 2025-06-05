@@ -1,12 +1,17 @@
+"""Module Dockstring"""
 import os
+
+from dotenv import load_dotenv
 from psycopg2 import pool
 from psycopg2.extensions import connection
-from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class Database:
+    """Dockstring"""
     def __init__(self):
+        """Dockstring"""
         dbname = os.getenv("OMAS_DB")
         username = os.getenv("OMAS_DB_USERNAME")
         password = os.getenv("OMAS_DB_PASSWORD")
@@ -19,10 +24,11 @@ class Database:
             user=username,
             password=password,
             host=host,
-            port=port
+            port=port,
         )
 
-    def retrieve_query(self, query):  
+    def retrieve_query(self, query):
+        """Dockstring"""
         _connection: connection = self.pool.getconn()
         _connection.autocommit = True
         _cursor = _connection.cursor()
@@ -32,7 +38,8 @@ class Database:
         self.pool.putconn(_connection)
         return output
 
-    def execute_query(self, query):  
+    def execute_query(self, query):
+        """Dockstring"""
         _connection: connection = self.pool.getconn()
         _connection.autocommit = True
         _cursor = _connection.cursor()
@@ -41,25 +48,44 @@ class Database:
         self.pool.putconn(_connection)
 
     def create_user(self, email: str, google_id: str):
-        return self.execute_query(f"INSERT INTO users (email, google_id) VALUES ('{email}', '{google_id}');")
+        """Dockstring"""
+        query = ""
+        query += "INSERT INTO users (email, google_id)"
+        query += f" VALUES ('{email}', '{google_id}');"
+        return self.execute_query(query)
 
     def create_secret(self, google_id: str, secret: str, title: str):
-        return self.execute_query(f"INSERT INTO secrets (google_id, otp_secret, title) VALUES ('{google_id}', '{secret}', '{title}');")
-    
+        """Dockstring"""
+        query = ""
+        query += "INSERT INTO secrets (google_id, otp_secret, title)"
+        query += f" VALUES ('{google_id}', '{secret}', '{title}');"
+        return self.execute_query(query)
+
     def user_exists(self, google_id: str):
-        result = self.retrieve_query(f"SELECT * FROM users WHERE google_id = '{google_id}';")
+        """Dockstring"""
+        result = self.retrieve_query(
+            f"SELECT * FROM users WHERE google_id = '{google_id}';"
+        )
         return len(result) > 0
 
     def get_user_codes(self, google_id: str):
+        """Dockstring"""
         out = []
-        result = self.retrieve_query(f"SELECT * FROM secrets WHERE google_id = '{google_id}';")
+        result = self.retrieve_query(
+            f"SELECT * FROM secrets WHERE google_id = '{google_id}';"
+        )
         for user_code in result:
-            out.append({
-                "id": user_code[0],
-                "otp_secret": user_code[3],
-                "title": user_code[1]
-            })
+            out.append(
+                {
+                    "id": user_code[0],
+                    "otp_secret": user_code[3],
+                    "title": user_code[1],
+                }
+            )
         return out
-    
+
     def remove_secret(self, secret_id: int):
-        return self.execute_query(f"DELETE FROM secrets WHERE id = '{secret_id}';")
+        """Dockstring"""
+        return self.execute_query(
+            f"DELETE FROM secrets WHERE id = '{secret_id}';"
+        )

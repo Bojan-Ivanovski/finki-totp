@@ -3,7 +3,7 @@
   min-width: 500px;
   padding: 2rem;
   border-radius: 8px;
-  box-shadow: 0 0px 10px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 0 10px 5px rgb(0 0 0 / 10%);
   box-sizing: border-box;
 }
 
@@ -35,7 +35,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgb(0 0 0 / 50%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -54,7 +54,7 @@
   width: 40px;
   height: 40px;
   cursor: pointer;
-  box-shadow: 0 0px 10px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 0 10px 5px rgb(0 0 0 / 10%);
 }
 
 .logout-button:hover {
@@ -69,28 +69,28 @@
   font-size: 22px; 
   border-radius: 6px; 
   border: none;
-  box-shadow: 0 0px 2px 2px rgba(0,0,0,0.1);
+  box-shadow: 0 0 2px 2px rgb(0 0 0 / 10%);
 }
 
-#otpInputs{
+#otp-inputs{
   display: flex;
   justify-content: center;
   gap: 10px;
 }
 
-#verifyTOTPForm{
+#verify-totp-form{
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
 }
 
-#verifySecret{
+#verify-secret{
   width: 100%;
   padding: 10px;
   border-radius: 8px;
   border: none;
-  box-shadow: 0 0px 5px 2px rgba(0,0,0,0.1);
+  box-shadow: 0 0 5px 2px rgb(0 0 0 / 10%);
 }
 
 .verify-button, .modal button{
@@ -100,7 +100,7 @@
   border-radius: 8px;
   border: none;
   cursor: pointer;
-  box-shadow: 0 0px 5px 2px rgba(0,0,0,0.1);
+  box-shadow: 0 0 5px 2px rgb(0 0 0 / 10%);
 }
 
 .secret-list{
@@ -111,7 +111,7 @@
 
 .dropdown-header{
   width: 100%;
-  box-shadow: 0 0px 5px 2px rgba(0,0,0,0.1);
+  box-shadow: 0 0 5px 2px rgb(0 0 0 / 10%);
   padding: 10px;
   border-radius: 8px;
   display: flex;
@@ -133,7 +133,7 @@
   align-items: center;
   padding: 10px;
   justify-content: space-between;
-  box-shadow: 0 0px 5px 2px rgba(0,0,0,0.1);
+  box-shadow: 0 0 5px 2px rgb(0 0 0 / 10%);
 }
 
 .modal input{
@@ -141,7 +141,7 @@
   padding: 10px;
   border-radius: 8px;
   border: none;
-  box-shadow: 0 0px 5px 2px rgba(0,0,0,0.1);
+  box-shadow: 0 0 5px 2px rgb(0 0 0 / 10%);
 }
 
 .modal-content{
@@ -153,5 +153,5 @@
   background-color: white;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 0px 10px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 0 10px 5px rgb(0 0 0 / 10%);
 }

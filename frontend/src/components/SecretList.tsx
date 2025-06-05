@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import SecretItem from "./SecretItem";
 import { removeSecret } from "../api";
 
-export default function SecretList({ secrets, refreshSecrets }: { secrets: any[], refreshSecrets: () => void }) {
+export default function SecretList({ secrets, refreshSecrets }: { secrets: any[], refreshSecrets: () => void }) { // eslint-disable-line @typescript-eslint/no-explicit-any
   const [seconds, setSeconds] = useState(() => {
     const now = Date.now();
     return 30 - (Math.floor(now / 1000) % 30);

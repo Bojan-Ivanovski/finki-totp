@@ -6,7 +6,7 @@ export default function SecretItem({
   seconds = 30,
   onDelete,
 }: {
-  secret: any;
+  secret: { [key: string]: any };// eslint-disable-line @typescript-eslint/no-explicit-any
   idx: number;
   seconds: number;
   onDelete: () => void;

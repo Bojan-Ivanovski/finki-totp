@@ -41,7 +41,7 @@ export default function TOTPCode({ setCode }: { setCode: (code: string) => void 
   };
 
   return (
-    <div id="otpInputs">
+    <div id="otp-inputs">
       {[...Array(6)].map((_, idx) => (
         <input
           key={idx}

@@ -35,22 +35,22 @@ It goes beyond the basic requirements by providing:
 
 ## Features
 
-| Feature                | Description                                                                 |
-|------------------------|-----------------------------------------------------------------------------|
-| 🔒 TOTP Generation     | RFC 6238-compliant TOTP codes (6 digits, 30s window)                        |
-| ✅ TOTP Verification   | Server-side verification of user-provided codes                              |
-| 🖥️ Web Interface      | Responsive, modern UI for managing secrets and codes                         |
-| 🗝️ Secret Storage     | Per-user encrypted storage of TOTP secrets                                   |
-| 📷 QR Code Provision  | QR code generation for easy authenticator app setup                          |
-| 🔐 Google Auth         | Secure login via Google OAuth2                                              |
-| 🌗 Dark Mode           | Toggleable dark/light mode for accessibility                                |
+| Feature              | Description                                          |
+| -------------------- | ---------------------------------------------------- |
+| 🔒 TOTP Generation   | RFC 6238-compliant TOTP codes (6 digits, 30s window) |
+| ✅ TOTP Verification | Server-side verification of user-provided codes      |
+| 🖥️ Web Interface     | Responsive, modern UI for managing secrets and codes |
+| 🗝️ Secret Storage    | Per-user encrypted storage of TOTP secrets           |
+| 📷 QR Code Provision | QR code generation for easy authenticator app setup  |
+| 🔐 Google Auth       | Secure login via Google OAuth2                       |
+| 🌗 Dark Mode         | Toggleable dark/light mode for accessibility         |
 
 ---
 
 ## Screenshots
 
-| Login Page | App Dashboard | Add Secret Modal | TOTP Verification |
-|------------|--------------|------------------|-------------------|
+| Login Page                      | App Dashboard                           | Add Secret Modal                          | TOTP Verification                 |
+| ------------------------------- | --------------------------------------- | ----------------------------------------- | --------------------------------- |
 | ![Login](screenshots/login.png) | ![Dashboard](screenshots/dashboard.png) | ![Add Secret](screenshots/add_secret.png) | ![Verify](screenshots/verify.png) |
 
 > _Replace the above image links with your actual screenshots._
@@ -72,17 +72,17 @@ flowchart TD
 
 ## API Reference
 
-| Method | Endpoint           | Description                        | Request Body                        | Response Example                | Auth Required |
-|--------|--------------------|------------------------------------|-------------------------------------|----------------------------------|--------------|
-| GET    | `/`                | Main landing page                  | -                                   | HTML                            | No           |
-| GET    | `/login`           | Start Google OAuth2 login          | -                                   | Redirect                        | No           |
-| GET    | `/auth`            | Google OAuth2 callback             | -                                   | Redirect                        | No           |
-| GET    | `/app`             | Main app dashboard                 | -                                   | HTML                            | Yes          |
-| GET    | `/app/get_secret`  | Get all user secrets & TOTP codes  | -                                   | `{ secrets: [...] }`            | Yes          |
-| POST   | `/add_secret`      | Add a new TOTP secret              | `{ secretName, secretValue }`       | `{}`                            | Yes          |
-| POST   | `/remove_secret`   | Remove a secret by ID              | `{ secretId }`                      | `{ success, message }`          | Yes          |
-| POST   | `/verify_otp`      | Verify a TOTP code for a secret    | `{ secret, code }`                  | `{ success, message }`          | Yes          |
-| GET    | `/logout`          | Logout user                        | -                                   | Redirect                        | Yes          |
+| Method | Endpoint          | Description                       | Request Body                  | Response Example       | Auth Required |
+| ------ | ----------------- | --------------------------------- | ----------------------------- | ---------------------- | ------------- |
+| GET    | `/`               | Main landing page                 | -                             | HTML                   | No            |
+| GET    | `/login`          | Start Google OAuth2 login         | -                             | Redirect               | No            |
+| GET    | `/auth`           | Google OAuth2 callback            | -                             | Redirect               | No            |
+| GET    | `/app`            | Main app dashboard                | -                             | HTML                   | Yes           |
+| GET    | `/app/get_secret` | Get all user secrets & TOTP codes | -                             | `{ secrets: [...] }`   | Yes           |
+| POST   | `/add_secret`     | Add a new TOTP secret             | `{ secretName, secretValue }` | `{}`                   | Yes           |
+| POST   | `/remove_secret`  | Remove a secret by ID             | `{ secretId }`                | `{ success, message }` | Yes           |
+| POST   | `/verify_otp`     | Verify a TOTP code for a secret   | `{ secret, code }`            | `{ success, message }` | Yes           |
+| GET    | `/logout`         | Logout user                       | -                             | Redirect               | Yes           |
 
 ---
 
@@ -95,30 +95,34 @@ It is the standard behind Google Authenticator, Microsoft Authenticator, and man
 
 ### How TOTP is Implemented Here
 
-- **Algorithm:**  
+- **Algorithm:**
   - Follows [RFC 6238](https://datatracker.ietf.org/doc/html/rfc6238)
   - Uses HMAC-SHA1, 6 digits, 30-second time window
-- **Python Implementation:**  
+- **Python Implementation:**
   - Custom `OTP` class in [`otp.py`](otp.py)
   - No external TOTP libraries used—demonstrates understanding of the algorithm
 
 #### Key Steps
 
-1. **Secret Handling:**  
+1. **Secret Handling:**
+
    - User secrets are stored in base32 encoding.
    - Decoded and used as the HMAC key.
 
-2. **Counter Calculation:**  
+2. **Counter Calculation:**
+
    - Counter = `current_unix_time // 30`
 
-3. **HMAC Calculation:**  
+3. **HMAC Calculation:**
+
    - HMAC-SHA1(secret, counter_bytes)
 
-4. **Dynamic Truncation:**  
+4. **Dynamic Truncation:**
+
    - Offset from last nibble of HMAC result
    - Extracts 4 bytes, masks to 31 bits, then modulo 1,000,000
 
-5. **Multiple Windows:**  
+5. **Multiple Windows:**
    - Accepts previous, current, and next 30s window for tolerance
 
 #### Example Code
@@ -153,13 +157,13 @@ def generate_qr_code(secret: str, email: str) -> str:
 
 - **Modern, responsive design** using HTML, CSS, and vanilla JS
 - **Dark mode** toggle (persists via `localStorage`)
-- **Secret management:**  
+- **Secret management:**
   - Add, view, and remove TOTP secrets
   - Each secret displays:
     - Name
     - Current TOTP code (auto-refreshes every 30s)
     - QR code for authenticator setup
-- **TOTP Verification:**  
+- **TOTP Verification:**
   - Enter a secret and code to verify validity
 
 > _See screenshots above for UI examples._
@@ -176,7 +180,7 @@ def generate_qr_code(secret: str, email: str) -> str:
 
 ## Secret Storage
 
-- **Per-user storage:**  
+- **Per-user storage:**
   - Each user's secrets are stored under their Google account ID in `user_secrets.json`
 - **Structure Example:**
 
@@ -251,4 +255,3 @@ finki-totp/
 ├── user_secrets.json # (auto-created) User secrets storage
 └── .env              # (not included) Environment variables
 ```
-
