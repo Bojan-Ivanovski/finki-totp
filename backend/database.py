@@ -2,8 +2,9 @@
 import os
 
 from dotenv import load_dotenv
-from psycopg2 import pool
+from psycopg2 import pool, OperationalError
 from psycopg2.extensions import connection
+import time
 
 load_dotenv()
 
@@ -12,21 +13,29 @@ class Database:
     """Dockstring"""
     def __init__(self):
         """Dockstring"""
-        dbname = os.getenv("OMAS_DB")
-        username = os.getenv("OMAS_DB_USERNAME")
-        password = os.getenv("OMAS_DB_PASSWORD")
-        host = os.getenv("OMAS_DB_HOST")
-        port = os.getenv("OMAS_DB_PORT")
-        self.pool = pool.SimpleConnectionPool(
-            minconn=1,
-            maxconn=10,
-            dbname=dbname,
-            user=username,
-            password=password,
-            host=host,
-            port=port,
-        )
-
+        try_to_connect = 0
+        dbname = os.getenv("DB_NAME")
+        username = os.getenv("DB_USERNAME")
+        password = os.getenv("DB_PASSWORD")
+        host = os.getenv("DB_HOST")
+        port = os.getenv("DB_PORT")
+        while try_to_connect < 60:
+            try:
+                self.pool = pool.SimpleConnectionPool(
+                    minconn=1,
+                    maxconn=10,
+                    dbname=dbname,
+                    user=username,
+                    password=password,
+                    host=host,
+                    port=port,
+                )
+                break
+            except OperationalError as e:
+                print(f"Failed to connect to the database: {e} (Attempt {try_to_connect + 1}/5)")
+                try_to_connect += 1
+                time.sleep(1)
+        
     def retrieve_query(self, query):
         """Dockstring"""
         _connection: connection = self.pool.getconn()

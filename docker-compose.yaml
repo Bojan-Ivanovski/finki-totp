@@ -14,17 +14,12 @@ services:
   postgres:
     image: postgres:16
     environment:
-      POSTGRES_USER: ${OMAS_DB_USERNAME}
-      POSTGRES_PASSWORD: ${OMAS_DB_PASSWORD}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - app-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${OMAS_DB_USERNAME}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 
   backend:
     build: ./backend   
@@ -34,11 +29,11 @@ services:
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       SECRET_KEY: ${SECRET_KEY}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
-      OMAS_DB_USERNAME: ${OMAS_DB_USERNAME}
-      OMAS_DB_PASSWORD: ${OMAS_DB_PASSWORD}
-      OMAS_DB_HOST: postgres
-      OMAS_DB_PORT: 5432
-      OMAS_DB: ${OMAS_DB}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
     expose:
       - "7777"
     depends_on:

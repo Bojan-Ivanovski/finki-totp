@@ -8,3 +8,4 @@ __pycache__/
 *.env
 user_secrets.json
 .vscode/
+secrets.yaml
