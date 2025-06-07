@@ -1,4 +1,16 @@
 services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "1212:1212"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - app-network
+
   postgres:
     image: postgres:16
     environment:
@@ -27,8 +39,8 @@ services:
       OMAS_DB_HOST: postgres
       OMAS_DB_PORT: 5432
       OMAS_DB: ${OMAS_DB}
-    ports:
-      - "7777:7777"
+    expose:
+      - "7777"
     depends_on:
       - postgres
     networks:
@@ -37,8 +49,8 @@ services:
   frontend:
     build: ./frontend
     image: finki_totp_frontend
-    ports:
-      - "5555:5555"
+    expose:
+      - "5555"
     depends_on:
       - backend
     networks:

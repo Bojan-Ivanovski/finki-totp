@@ -4,7 +4,6 @@ import os
 from authlib.integrations.starlette_client import OAuth
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request, Response
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from starlette.middleware.sessions import SessionMiddleware
 
@@ -23,13 +22,7 @@ origins = os.getenv("ALLOWED_ORIGINS", "").split(",")
 
 app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+
 oauth = OAuth()
 oauth.register(
     name="google",
@@ -42,31 +35,31 @@ oauth.register(
 )
 
 
-@app.get("/")
+@app.get("/api/")
 def root():
     """Dockstring"""
-    with open("main.html", "r", encoding="utf-8") as file:
-        return Response(content=file.read(), media_type="text/html")
+    return RedirectResponse(url="/api/docs")
 
 
-@app.get("/login")
+@app.get("/api/login")
 async def login(request: Request, redirect: str):
     """Dockstring"""
     if request.session.get("user"):
         return RedirectResponse(url=redirect)
     request.session["redirect"] = redirect
     redirect_uri = request.url_for("auth")
+    print(f"Redirect URI: {redirect_uri}")
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 
-@app.get("/logout")
+@app.get("/api/logout")
 async def logout(request: Request, redirect: str):
     """Dockstring"""
     request.session.clear()
     return RedirectResponse(url=redirect)
 
 
-@app.get("/auth")
+@app.get("/api/auth")
 async def auth(request: Request):
     """Dockstring"""
     token = await oauth.google.authorize_access_token(request)
@@ -79,7 +72,7 @@ async def auth(request: Request):
     return RedirectResponse(url=request.session["redirect"])
 
 
-@app.get("/get_secret")
+@app.get("/api/get_secret")
 def get_secret(request: Request):
     """Dockstring"""
     user = request.session.get("user").get("sub")
@@ -98,7 +91,7 @@ def get_secret(request: Request):
     return {"secrets": secrets}
 
 
-@app.post("/add_secret")
+@app.post("/api/add_secret")
 async def add_secret_for_user(request: Request):
     """Dockstring"""
     body = await request.json()
@@ -112,7 +105,7 @@ async def add_secret_for_user(request: Request):
     db.create_secret(user, secret_value, secret_name)
 
 
-@app.post("/remove_secret")
+@app.post("/api/remove_secret")
 async def remove_secret_for_user(request: Request):
     """Dockstring"""
     body = await request.json()
@@ -124,7 +117,7 @@ async def remove_secret_for_user(request: Request):
     return {"success": False, "message": "Secret not found."}
 
 
-@app.post("/verify_otp")
+@app.post("/api/verify_otp")
 async def verify_otp(request: Request):
     """Dockstring"""
     body = await request.json()

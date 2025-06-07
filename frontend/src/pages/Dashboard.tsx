@@ -24,7 +24,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchSecrets();
-  });
+  }, []);
 
   return (
     <div className="main-dashboard">
