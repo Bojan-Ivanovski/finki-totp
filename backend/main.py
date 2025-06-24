@@ -4,11 +4,12 @@ import os
 from authlib.integrations.starlette_client import OAuth
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request, Response
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
 
 from database import Database
 from otp import OTP
+import base64
 
 load_dotenv()
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
@@ -140,3 +141,13 @@ async def verify_otp(request: Request):
     except Exception as e:# pylint: disable=W0718
         print(f"Error verifying OTP: {e}")
         return Response({"success": False, "message": str(e)}, status_code=404)
+
+@app.get("/api/generate_secret")
+async def generate_secret(request: Request):
+    """Dockstring"""
+    user = request.session.get("user").get("sub")
+    if not user:
+        return RedirectResponse(url="/")
+    random_bytes = os.urandom(10)
+    secret = base64.b32encode(random_bytes).decode("utf-8").replace("=", "")
+    return JSONResponse({"success": False, "value": str(secret), "qr" : OTP.generate_qr_code(secret, request.session.get("email"))}, status_code=200)

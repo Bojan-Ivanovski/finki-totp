@@ -7,6 +7,14 @@ export async function getSecrets() {
   return temp
 }
 
+export async function generateSecret() {
+  const res = await fetch(`${VITE_BACKEND_APP_URL}/generate_secret`, {
+    method: "GET",
+    credentials: "include",
+  });
+  return await res.json();
+}
+
 export async function addSecret(secretName: string, secretValue: string) {
   const res = await fetch(`${VITE_BACKEND_APP_URL}/add_secret`, {
     method: "POST",

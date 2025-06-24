@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { getSecrets, logout, verifyOTP } from "../api";
+import { getSecrets, logout, verifyOTP, generateSecret } from "../api";
 import { useNavigate } from "react-router-dom";
 import SecretList from "../components/SecretList";
 import AddSecretModal from "../components/AddSecretModal";
@@ -12,6 +12,8 @@ export default function Dashboard() {
   const [result, setResult] = useState<string | null>(null);
   const [secrets, setSecrets] = useState<any[]>([]); // eslint-disable-line @typescript-eslint/no-explicit-any
   const [showAdd, setShowAdd] = useState(false);
+  const [generatedSecret, setGeneratedSecret] = useState<string | null>(null);
+  const [qrCode, setQrCode] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const fetchSecrets = useCallback(() => {
@@ -29,6 +31,30 @@ export default function Dashboard() {
   return (
     <div className="main-dashboard">
       <DarkModeToggle />
+      <div className="dashboard" style={{ marginBottom: "50px" }}>
+        <form
+          id="generate-totp-form"
+          onSubmit={async (e) => {
+        e.preventDefault();
+        const res = await generateSecret();
+        setGeneratedSecret(res.value);
+        setQrCode(res.qr);
+          }}
+        >
+          <h2>Generate TOTP Secret</h2>
+          <button type="submit" className="verify-button">Generate</button>
+          {generatedSecret && (
+        <>
+          <h3>{generatedSecret}</h3>
+          {qrCode && <img
+              src={`data:image/png;base64,${qrCode}`}
+              alt="QR Code"
+              style={{ width: "100%", height: "auto" }}
+            />}
+        </>
+          )}
+        </form>
+      </div>
       <div className="dashboard" style={{ marginBottom: "50px" }}>
         <form id="verify-totp-form" onSubmit={async (e) => {
               e.preventDefault();

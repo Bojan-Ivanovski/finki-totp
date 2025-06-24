@@ -19,7 +19,7 @@ class Database:
         password = os.getenv("DB_PASSWORD")
         host = os.getenv("DB_HOST")
         port = os.getenv("DB_PORT")
-        while try_to_connect < 60:
+        while try_to_connect < 100:
             try:
                 self.pool = pool.SimpleConnectionPool(
                     minconn=1,
@@ -32,7 +32,7 @@ class Database:
                 )
                 break
             except OperationalError as e:
-                print(f"Failed to connect to the database: {e} (Attempt {try_to_connect + 1}/5)")
+                print(f"Failed to connect to the database: {e} (Attempt {try_to_connect + 1}/100)")
                 try_to_connect += 1
                 time.sleep(1)
         
