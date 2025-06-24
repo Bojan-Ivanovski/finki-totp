@@ -3,23 +3,41 @@ kind: Ingress
 metadata:
   name: finki-totp-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
+  ingressClassName: nginx
   rules:
-  - host: your.domain.com  # Replace with your domain or remove for default catch-all
-    http:
-      paths:
-      - path: /api(/|$)(.*)
-        pathType: Prefix
-        backend:
-          service:
-            name: backend
-            port:
-              number: 7777
-      - path: /(.*)
-        pathType: Prefix
-        backend:
-          service:
-            name: frontend
-            port:
-              number: 5555
+    - host: finki-totp.com
+      http:
+        paths:
+        - backend:
+            service:
+              name: backend
+              port:
+                number: 7777
+          path: /api
+          pathType: Prefix
+        - backend:
+            service:
+              name: frontend
+              port:
+                number: 5555
+          path: /
+          pathType: Prefix
+    - host: finki-totp.ddns.net
+      http:
+        paths:
+        - backend:
+            service:
+              name: backend
+              port:
+                number: 7777
+          path: /api
+          pathType: Prefix
+        - backend:
+            service:
+              name: frontend
+              port:
+                number: 5555
+          path: /
+          pathType: Prefix

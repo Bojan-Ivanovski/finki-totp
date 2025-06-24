@@ -25,6 +25,6 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: finki_totp_frontend
+          image: bojanivanovski/finki-totp-frontend:latest
           ports:
             - containerPort: 5555

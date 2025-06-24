@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: bojanivanovski/finki-totp-backend
+          image: bojanivanovski/finki-totp-backend:latest
           ports:
             - containerPort: 7777
           envFrom:
