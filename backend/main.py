@@ -83,9 +83,9 @@ def get_secret(request: Request):
     secrets = db.get_user_codes(user)
     for secret in secrets:
         try:
-            secret["value"] = OTP(secret["otp_secret"]).generate_otp()[1]
+            secret["value"] = OTP(secret["otp_secret"]).generate_otp()[2]
             secret["qr"] = OTP.generate_qr_code(
-                secret["otp_secret"], request.session.get("email")
+                secret["otp_secret"], request.session.get("user").get("email")
             )
         except Exception as e:# pylint: disable=W0718
             print(f"Error : {e}")
@@ -100,7 +100,7 @@ async def add_secret_for_user(request: Request):
     if not user:
         return RedirectResponse(url="/")
     if not db.user_exists(user):
-        db.create_user(email=request.session.get("email"), google_id=user)
+        db.create_user(email=request.session.get("user").get("email"), google_id=user)
     secret_name = body.get("secretName")
     secret_value = body.get("secretValue")
     db.create_secret(user, secret_value, secret_name)
@@ -150,4 +150,5 @@ async def generate_secret(request: Request):
         return RedirectResponse(url="/")
     random_bytes = os.urandom(10)
     secret = base64.b32encode(random_bytes).decode("utf-8").replace("=", "")
-    return JSONResponse({"success": False, "value": str(secret), "qr" : OTP.generate_qr_code(secret, request.session.get("email"))}, status_code=200)
+    print(request.session.get("user").get("email"))
+    return JSONResponse({"success": False, "value": str(secret), "qr" : OTP.generate_qr_code(secret, request.session.get("user").get("email"))}, status_code=200)

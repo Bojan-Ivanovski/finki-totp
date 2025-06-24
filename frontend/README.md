@@ -1,54 +1,81 @@
-# React + TypeScript + Vite
+# 🎨 Frontend – React (Vite) TOTP Web App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This folder contains the **React** frontend for FINKI-TOTP.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+- Modern UI for managing TOTP secrets
+- Google OAuth2 login flow
+- QR code display for easy setup
+- Dark/light mode toggle
+- API integration with FastAPI backend
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-});
-```
+## Screenshots
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+<!-- Place your screenshots in a `screenshots/` folder at the root or inside `frontend/` and reference them here. -->
+| Login Page                      | Dashboard                           | Add Secret Modal                          | TOTP Verification                 |
+| ------------------------------- | ----------------------------------- | ----------------------------------------- | --------------------------------- |
+| ![Login](../screenshots/login.png) | ![Dashboard](../screenshots/dashboard.png) | ![Add Secret](../screenshots/add_secret.png) | ![Verify](../screenshots/verify.png) |
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
+> _Replace the above image links with your actual screenshots. You can take screenshots of:_
+> - The login page (`/`)
+> - The dashboard after login (`/app`)
+> - The modal for adding a new secret
+> - The TOTP verification form
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    "react-x": reactX,
-    "react-dom": reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs["recommended-typescript"].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-});
-```
+---
+
+## Project Structure
+
+| File/Folder     | Purpose                          |
+| --------------- | -------------------------------- |
+| `src/`          | React source code                |
+| `nginx.conf`    | Nginx config for production      |
+| `Dockerfile`    | Containerization                 |
+| `.env`          | Frontend environment variables   |
+
+---
+
+## Environment Variables
+
+- `VITE_BACKEND_APP_URL` – URL to backend API (e.g., `/api`)
+
+---
+
+## How it Works
+
+- **Login:** Users authenticate via Google OAuth2.  
+  _Screenshot suggestion: login page with "Sign in with Google" button._
+- **Dashboard:** After login, users see their TOTP secrets, can generate new ones, and view QR codes.  
+  _Screenshot suggestion: dashboard with secrets list and QR codes._
+- **Add Secret:** Users can add a new TOTP secret via a modal dialog.  
+  _Screenshot suggestion: add secret modal open._
+- **Verify TOTP:** Users can enter a secret and a code to verify if the TOTP is valid.  
+  _Screenshot suggestion: verification form with result._
+
+---
+
+## Customization
+
+- **Styling:** All styles are in `src/styles/`.
+- **Routing:** See `src/App.tsx` for route definitions.
+- **API Calls:** All backend communication is in `src/api/index.ts`.
+
+---
+
+## Notes
+
+- Make sure your backend is running and accessible at the URL specified in `VITE_BACKEND_APP_URL`.
+- For production, the app is served via Nginx (see `nginx.conf`).
+
+---
+
+## Contributing
+
+Feel free to open issues or PRs for improvements!
+
+---
