@@ -23,7 +23,7 @@ This repository contains **two integrated projects** for university coursework:
 
 ## 🚀 Quick Start
 
-1. **Clone the repo**  
+1. **Clone the repository**  
    `git clone git@github.com:Bojan-Ivanovski/finki-totp.git`
 
 2. **Set up environment variables**  
